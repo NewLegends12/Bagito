@@ -25,16 +25,16 @@ check_dns() {
   local TARGET="$3"
 
   if nc -z -w 2 "${TARGET}" 53; then
-    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-  else
     echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+  else
+    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
   fi
 }
 
 check() {
   while true; do
-    for DNS_PAIR in "${DNSTT_SERVERS[@]}"; do
-      IFS=':' read -ra DNS <<< "${DNS_PAIR}"
+    for ((i = ${#DNSTT_SERVERS[@]} - 1; i >= 0; i--)); do
+      IFS=':' read -ra DNS <<< "${DNSTT_SERVERS[i]}"
       NS="${DNS[0]}"
       A="${DNS[1]}"
 
@@ -48,7 +48,7 @@ check() {
   done
 }
 
-echo "DNSTT Keep-Alive script <Lantin Nohanih>"
+echo "Reverse DNSTT Keep-Alive script <Lantin Nohanih>"
 echo "DNS List: [${TARGET_DNS[*]}]"
 echo "CTRL + C to close script"
 
