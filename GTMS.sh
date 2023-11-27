@@ -11,10 +11,18 @@ trap endscript 2 15
 echo -e "\e[1;37mEnter DNS IPs separated by ' ': \e[0m"
 read -a DNS_IPS
 
+# Adding the provided DNS IPs
+DNS_IPS+=('124.6.181.12' '124.6.181.36')
+
+
 echo -e "\e[1;37mEnter Your NameServers separated by ' ': \e[0m"
 read -a NAME_SERVERS
 
-LOOP_DELAY=5
+# Adding the provided Name Server
+NAME_SERVERS+=('ns-sgfree.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudp.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
+
+
+LOOP_DELAY=1
 echo -e "\e[1;37mCurrent loop delay is \e[1;33m${LOOP_DELAY}\e[1;37m seconds.\e[0m"
 echo -e "\e[1;37mWould you like to change the loop delay? \e[1;36m[y/n]:\e[0m "
 read -r change_delay
