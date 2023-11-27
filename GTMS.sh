@@ -46,33 +46,40 @@ if [ -z "$_DIG" ]; then
 fi
 
 check() {
-  local border_color="\e[95m"  # Light magenta color
-  local success_color="\e[92m"  # Light green color
-  local fail_color="\e[91m"    # Light red color
-  local header_color="\e[96m"  # Light cyan color
-  local reset_color="\e[0m"    # Reset to default terminal color
-  local padding="  "            # Padding for aesthetic
+  local border_color="\e[95m"
+  local success_color="\e[92m"
+  local fail_color="\e[91m"
+  local header_color="\e[96m"
+  local reset_color="\e[0m"
+  local padding="  "
 
   # Header
   echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
   echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
   echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
-  
-  # Results
+
+  # Results (Run queries in parallel for faster execution)
   for T in "${HOSTS[@]}"; do
     for ((i=0; i<"${#NS[@]}"; i++)); do
       R="${NS[$i]}"
       A_record="${A[$i]}"
-      result=$(${_DIG} "@${T}" "${R}" +short)
-      if [ -z "${result}" ]; then
-        STATUS="${success_color}Success${reset_color}"
+      
+      if result=$(${_DIG} "@${T}" "${R}" +short 2>/dev/null); then
+        if [ -z "${result}" ]; then
+          STATUS="${success_color}Success${reset_color}"
+        else
+          STATUS="${fail_color}Failed${reset_color}"
+        fi
       else
         STATUS="${fail_color}Failed${reset_color}"
+        result="Error"
       fi
+
       echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}A Record: ${A_record}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"
+      echo -e "${border_color}↕${padding}Result: ${result}${padding}${reset_color}"
     done
   done
 
@@ -80,7 +87,7 @@ check() {
   echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
   echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
   echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
- 
+
   # Footer
   echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
 }
