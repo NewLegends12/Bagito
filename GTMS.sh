@@ -8,10 +8,6 @@ DNSTT_SERVERS=(
   'ns-artph1.elcavlaw.com:artph1.elcavlaw.com'
   'ns-artsg1.elcavlaw.com:artsg1.elcavlaw.com'
   'ns-artsg2.elcavlaw.com:artsg2.elcavlaw.com'
-  'sdns.myudp.elcavlaw.com:myudp.elcavlaw.com'
-  'sdns.myudph.elcavlaw.com:myudph.elcavlaw.com'
-  'sdns.myudp1.elcavlaw.com:myudp1.elcavlaw.com'
-  'ns-sgfree.elcavlaw.com:sgfree.elcavlaw.com'
 )
 
 TARGET_DNS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
@@ -23,44 +19,16 @@ endscript() {
 
 trap endscript 2 15
 
-heartbeat_animation() {
-  local color="$1"
-  while true; do
-    echo -ne "\e[${color}m❤ \e[0m"
-    sleep 0.5
-  end
-
 check_dns() {
   local NS="$1"
   local A="$2"
   local TARGET="$3"
-  local RETRIES=3
-  local TIMEOUT=2
 
-  for ((i = 0; i < RETRIES; i++)); do
-    if nc -z -w "${TIMEOUT}" "${TARGET}" 53; then
-      echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-      heartbeat_animation "32" &  # Start green heartbeat animation in the background
-      local HEARTBEAT_PID=$!
-
-      # Actual work when connection is successful
-      # You can add more tasks here if needed
-      sleep 5  # Simulating some work, you can replace this with actual tasks
-
-      # Stop heartbeat animation
-      kill -9 "${HEARTBEAT_PID}" >/dev/null 2>&1
-      wait "${HEARTBEAT_PID}" 2>/dev/null
-      echo -e "\nConnection tasks completed for DNS Server ${NS}"
-      return 0  # Success
-    fi
-    sleep 1  # Wait before retrying
-  done
-
-  echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
-  heartbeat_animation "31" &  # Start red heartbeat animation in the background
-  sleep 5  # Simulating some work, you can replace this with actual tasks
-  echo -e "\nError handling completed for DNS Server ${NS}"
-  return 1  # Error
+  if nc -z -w 2 "${TARGET}" 53; then
+    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+  else
+    echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+  fi
 }
 
 check() {
