@@ -23,10 +23,10 @@ check() {
     A="${DNS[1]}"
 
     for TARGET in "${TARGET_DNS[@]}"; do
-      if nc -z -w 3 "${TARGET}" 53; then
-        echo "Success: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+      if nc -z -w 1 "${TARGET}" 53; then
+        echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
       else
-        echo "Error: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+        echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
       fi
     done
   done
