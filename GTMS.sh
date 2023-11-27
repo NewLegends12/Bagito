@@ -7,7 +7,7 @@ declare -a DNS_SERVERS=("8.8.8.8" "8.8.4.4" "208.67.222.222" "208.67.220.220")
 declare -a DOMAINS=("vt.tiktok.com" "new.globe.com.ph" "app1.smart.com.ph")
 
 # Linux' dig command executable filepath
-DIG_EXEC="/usr/bin/dig"
+DIG_EXEC="/data/data/com.termux/files/usr/bin/dig"
 
 # Check if dig is installed
 if [ ! -x "$DIG_EXEC" ]; then
