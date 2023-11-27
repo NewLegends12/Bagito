@@ -11,11 +11,13 @@ trap endscript 2 15
 declare -a DNS_IPS=('124.6.181.12' '124.6.181.36')
 declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
 
-LOOP_DELAY=30
+LOOP_DELAY=3
 
 DIG_EXEC="DEFAULT"
 CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
 VER=0.3
+
+CACHE_FILE="/tmp/dns_cache.txt"
 
 case "${DIG_EXEC}" in
   DEFAULT|D)
@@ -33,7 +35,7 @@ fi
 # Initialize the counter
 count=1
 
-check(){
+check() {
   local border_color="\e[95m"  # Light magenta color
   local success_color="\e[92m"  # Light green color
   local fail_color="\e[91m"    # Light red color
@@ -45,19 +47,29 @@ check(){
   echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
   echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
   echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
-  
+
   # Results
   for T in "${DNS_IPS[@]}"; do
     for R in "${NAME_SERVERS[@]}"; do
-      result=$(${_DIG} @${T} ${R} +short)
-      if [ -z "$result" ]; then
-        STATUS="${success_color}Success${reset_color}"
-      else
-        STATUS="${fail_color}Failed${reset_color}"
+      result=""
+      if [ -f "$CACHE_FILE" ]; then
+        result=$(grep -E "^$T $R " "$CACHE_FILE" | cut -d' ' -f3)
       fi
+
+      if [ -z "$result" ]; then
+        result=$(${_DIG} @${T} ${R} +short)
+        echo "$T $R $result" >> "$CACHE_FILE"
+      fi
+
+      if [ -z "$result" ]; then
+        STATUS="${fail_color}Failed${reset_color}"
+      else
+        STATUS="${success_color}Success${reset_color}"
+      fi
+
       echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
-      echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"  # Fixed this line
+      echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"
     done
   done
 
@@ -65,24 +77,25 @@ check(){
   echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
   echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
   echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
- 
+
   # Footer
   echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
 }
 
 countdown() {
-    for i in 2 1 0; do
-        echo "Checking started in $i seconds..."
-        sleep 1
-    done
+  for i in 2 1 0; do
+    echo "Checking started in $i seconds..."
+    sleep 1
+  done
 }
-echo""
-echo""
+
+echo ""
+echo ""
 echo "Begin...."
-echo""
-echo""
+echo ""
+echo ""
 countdown
-  clear
+clear
 
 # Main loop
 while true; do
