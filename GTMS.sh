@@ -5,7 +5,7 @@ declare -a NS=('sdns.myudp.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudph
 declare -a A=('myudp.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudph.elcavlaw.com' 'sgfree.elcavlaw.com')
 
 # Repeat dig cmd loop time (seconds) (positive integer only)
-LOOP_DELAY=5
+LOOP_DELAY=1
 
 # Add your DNS IP addresses here
 declare -a HOSTS=('124.6.181.12' '124.6.181.36')
@@ -102,7 +102,7 @@ dns_hunter() {
 }
 
 countdown() {
-  for i in {5..1}; do
+  for i in {3..1}; do
     echo "Checking started in $i seconds..."
     sleep 1
   done
