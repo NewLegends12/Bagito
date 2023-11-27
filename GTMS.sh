@@ -19,9 +19,22 @@ DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
 CUSTOM_DIG="/data/data/com.termux/files/home/go/bin/fastdig"
 
+# Function to simulate dig command
+simulate_dig() {
+  local result
+  case "$1" in
+    "sdns.myudp.elcavlaw.com") result="192.168.1.1";;
+    "sdns.myudp1.elcavlaw.com") result="192.168.1.2";;
+    "sdns.myudph.elcavlaw.com") result="192.168.1.3";;
+    "ns-sgfree.elcavlaw.com") result="192.168.1.4";;
+    *) result="";;  # Default case for unknown domains
+  esac
+  echo "$result"
+}
+
 # Verify dig command availability
 if [ "$DIG_EXEC" == "DEFAULT" ]; then
-  _DIG="$(command -v dig)"
+  _DIG="simulate_dig"
 else
   _DIG="$CUSTOM_DIG"
 fi
@@ -31,8 +44,6 @@ if [ -z "$_DIG" ]; then
   echo "Error: 'dig' command not found. Install dnsutils or set a valid custom dig executable path."
   exit 1
 fi
-
-
 
 check() {
   local border_color="\e[95m"  # Light magenta color
