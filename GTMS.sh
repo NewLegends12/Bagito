@@ -7,8 +7,7 @@ declare -a DNS_SERVERS=("124.6.181.12" "124.6.181.20")
 DOMAIN="ns-sgfree.elcavlaw.com"
 
 # Linux' dig command executable filepath
-DIG_EXEC="/usr/bin/dig"
-
+CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
 # Check if dig is installed
 if [ ! -x "$DIG_EXEC" ]; then
   echo "Error: 'dig' command not found. Install dnsutils or set a valid dig executable path."
