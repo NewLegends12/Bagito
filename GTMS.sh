@@ -17,8 +17,9 @@ endscript() {
 trap endscript 2 15
 
 heartbeat_animation() {
+  local color="$1"
   while true; do
-    echo -ne "\e[1m❤ \e[0m"
+    echo -ne "\e[${color}m❤ \e[0m"
     sleep 0.5
   done
 }
@@ -30,7 +31,7 @@ check_dns() {
 
   if nc -z -w 1 "${TARGET}" 53 >/dev/null 2>&1; then
     echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-    heartbeat_animation &  # Start heartbeat animation in the background
+    heartbeat_animation "32" &  # Start green heartbeat animation in the background
     local HEARTBEAT_PID=$!
 
     # Actual work when connection is successful
@@ -43,6 +44,9 @@ check_dns() {
     echo -e "\nConnection tasks completed for DNS Server ${NS}"
   else
     echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+    heartbeat_animation "31" &  # Start red heartbeat animation in the background
+    sleep 5  # Simulating some work, you can replace this with actual tasks
+    echo -e "\nError handling completed for DNS Server ${NS}"
   fi
 }
 
