@@ -7,9 +7,9 @@ declare -a DNS_SERVERS=("124.6.181.12" "124.6.181.20")
 DOMAIN="ns-sgfree.elcavlaw.com"
 
 # Linux' dig command executable filepath
-CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
+CUSTOM_DIG="/data/data/com.termux/files/home/go/bin/fastdig"
 # Check if dig is installed
-if [ ! -x "$DIG_EXEC" ]; then
+if [ ! -x "$CUSTOM_DIG" ]; then
   echo "Error: 'dig' command not found. Install dnsutils or set a valid dig executable path."
   exit 1
 fi
@@ -17,7 +17,7 @@ fi
 # Function to query DNS
 query_dns() {
   for DNS_SERVER in "${DNS_SERVERS[@]}"; do
-    result=$("$DIG_EXEC" +short "@$DNS_SERVER" "$DOMAIN")
+    result=$("$CUSTOM_DIG" +short "@$DNS_SERVER" "$DOMAIN")
 
     if [ -z "$result" ]; then
       echo "Domain: $DOMAIN | DNS Server: $DNS_SERVER | Status: Not Found"
