@@ -8,7 +8,7 @@ declare -a NS=('sdns.myudp.elcavlaw.com' 'ns-artph.elcavlaw.com' 'sdns.myudp1.el
 declare -a A=('myudp.elcavlaw.com' 'artph.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudp1.elcavlaw.com' 'artph1.elcavlaw.com' 'artsg1.elcavlaw.com' 'artsg2.elcavlaw.com')
 
 # Repeat dig cmd loop time (seconds) (positive integer only)
-LOOP_DELAY=0
+LOOP_DELAY=5
 
 # Add your DNS IP addresses here
 declare -a HOSTS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
