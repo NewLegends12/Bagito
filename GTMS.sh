@@ -14,7 +14,7 @@ declare -a HOSTS=('124.6.181.12' '124.6.181.36')
 # Select value: "CUSTOM|C" or "DEFAULT|D"
 DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
-CUSTOM_DIG="/path/to/your/dig"
+CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
 
 # Log file path
 LOG_FILE="dns_checker_log.txt"
