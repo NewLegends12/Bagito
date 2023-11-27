@@ -14,26 +14,6 @@ read -a DNS_IPS
 echo -e "\e[1;37mEnter Your NameServers separated by ' ': \e[0m"
 read -a NAME_SERVERS
 
-# Adding the provided DNS and Name Servers
-DNS_IPS+=(
-  'sdns.myudp.elcavlaw.com'
-  'sdns.myudp1.elcavlaw.com'
-  'sdns.myudph.elcavlaw.com'
-  'ns-sgfree.elcavlaw.com'
-)
-
-NAME_SERVERS+=(
-  'myudp.elcavlaw.com'
-  'myudp1.elcavlaw.com'
-  'myudph.elcavlaw.com'
-  'sgfree.elcavlaw.com'
-)
-
-TARGET_DNS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
-
-# Adding the provided TARGET_DNS array
-DNS_IPS+=("${TARGET_DNS[@]}")
-
 LOOP_DELAY=5
 echo -e "\e[1;37mCurrent loop delay is \e[1;33m${LOOP_DELAY}\e[1;37m seconds.\e[0m"
 echo -e "\e[1;37mWould you like to change the loop delay? \e[1;36m[y/n]:\e[0m "
@@ -78,9 +58,9 @@ check(){
   local padding="  "            # Padding for aesthetic
 
   # Header
-  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
+  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
   echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
   
   # Results
   for T in "${DNS_IPS[@]}"; do
@@ -98,7 +78,7 @@ check(){
   done
 
   # Check count and Loop Delay
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
   echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
   echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
  
