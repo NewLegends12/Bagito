@@ -19,6 +19,20 @@ DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
 CUSTOM_DIG="/data/data/com.termux/files/home/go/bin/fastdig"
 
+# Verify dig command availability
+if [ "$DIG_EXEC" == "DEFAULT" ]; then
+  _DIG="$(command -v dig)"
+else
+  _DIG="$CUSTOM_DIG"
+fi
+
+# Check if dig is installed
+if [ -z "$_DIG" ]; then
+  echo "Error: 'dig' command not found. Install dnsutils or set a valid custom dig executable path."
+  exit 1
+fi
+
+
 
 check() {
   local border_color="\e[95m"  # Light magenta color
