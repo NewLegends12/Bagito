@@ -17,7 +17,8 @@ declare -a HOSTS=('124.6.181.12' '124.6.181.36')
 # Select value: "CUSTOM|C" or "DEFAULT|D"
 DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
-CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
+CUSTOM_DIG="/data/data/com.termux/files/home/go/bin/fastdig"
+
 
 check() {
   local border_color="\e[95m"  # Light magenta color
