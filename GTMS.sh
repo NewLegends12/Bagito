@@ -5,7 +5,7 @@ declare -a NS=('sdns.myudp.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudph
 declare -a A=('myudp.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudph.elcavlaw.com' 'sgfree.elcavlaw.com')
 
 # Repeat dig cmd loop time (seconds) (positive integer only)
-LOOP_DELAY=1
+LOOP_DELAY=5
 
 # Add your DNS IP addresses here
 declare -a HOSTS=('124.6.181.12' '124.6.181.36')
@@ -17,7 +17,7 @@ DIG_EXEC="DEFAULT"
 CUSTOM_DIG="/data/data/com.termux/files/usr/bin/dig"
 
 # Log file path
-LOG_FILE="dns_checker_log.txt"
+LOG_FILE="dns_hunter_log.txt"
 
 # Verify dig command availability
 if [ "$DIG_EXEC" == "DEFAULT" ]; then
@@ -32,77 +32,40 @@ if [ -z "$_DIG" ]; then
   exit 1
 fi
 
-check_dns() {
-  local border_color="\e[95m"
-  local success_color="\e[92m"
-  local fail_color="\e[91m"
-  local header_color="\e[96m"
-  local reset_color="\e[0m"
-  local padding="  "
-
-  # Header
-  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
-  echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
-
-  # Results (Run queries in parallel for faster execution)
-  for T in "${HOSTS[@]}"; do
-    for ((i=0; i<"${#NS[@]}"; i++)); do
-      R="${NS[$i]}"
-      A_record="${A[$i]}"
+dns_hunter() {
+  echo "DNS Hunter: Searching for leaked IPs..."
+  
+  # Iterate through each DNS and IP combination
+  for ((i=0; i<"${#HOSTS[*]}"; i++)); do
+    for R in "${NS}" "${A}" "${NS1}" "${A1}" "${NS2}" "${A2}" "${NS3}" "${A3}" "${NS4}" "${A4}" "${NS5}" "${A5}" "${NS6}" "${A6}"; do
+      T="${HOSTS[$i]}"
       
-      if result=$(${_DIG} "@${T}" "${R}" +short 2>/dev/null); then
-        if [ -z "${result}" ]; then
-          STATUS="${success_color}Success${reset_color}"
-        else
-          STATUS="${fail_color}Failed${reset_color}"
-        fi
-      else
-        STATUS="${fail_color}Failed${reset_color}"
-        result="Error"
+      # Run a command to check if the DNS resolution matches an expected result
+      result=$(${_DIG} "@${T}" "${R}" +short 2>/dev/null)
+      
+      # Define your logic here to identify potential issues
+      if [ "${result}" == "Unexpected IP" ]; then
+        echo "Potential issue detected: DNS ${T} resolved to unexpected IP ${result}, NameServer: ${R}"
+        
+        # Log the event with timestamp and details
+        log_result "${T}" "${R}" "Unexpected IP" "Potential issue detected"
+        
+        # Add further actions or logging as needed
+        # For example, send an alert, block the IP, etc.
       fi
-
-      log_result "${T}" "${R}" "${A_record}" "${STATUS}" "${result}"
-
-      echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
-      echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
-      echo -e "${border_color}↕${padding}A Record: ${A_record}${padding}${reset_color}"
-      echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"
-      echo -e "${border_color}↕${padding}Result: ${result}${padding}${reset_color}"
     done
   done
-
-  # Check count and Loop Delay
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
-  echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
-  echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
-
-  # Footer
-  echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
+  
+  echo "DNS Hunter: Finished"
 }
 
 log_result() {
   local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  echo "${timestamp} - DNS IP: $1, NameServer: $2, A Record: $3, Status: $4, Result: $5" >> "$LOG_FILE"
-}
-
-dns_hunter() {
-  echo "DNS Hunter: Searching for leaked IPs..."
-  # This is a simple demonstration; you may need to customize this part based on your requirements.
-  for ((i=0; i<"${#HOSTS[*]}"; i++)); do
-    for R in "${NS}" "${A}" "${NS1}" "${A1}" "${NS2}" "${A2}" "${NS3}" "${A3}" "${NS4}" "${A4}" "${NS5}" "${A5}" "${NS6}" "${A6}"; do
-      T="${HOSTS[$i]}"
-      # Add your logic here for DNS hunting
-      # For demonstration purposes, it echoes the results
-      echo "Hunting DNS for IP: ${T}, NameServer: ${R}"
-      # You can add more sophisticated hunting logic here
-    done
-  done
-  echo "DNS Hunter: Finished"
+  echo "${timestamp} - DNS IP: $1, NameServer: $2, Result: $3, Status: $4" >> "$LOG_FILE"
 }
 
 countdown() {
-  for i in {3..1}; do
+  for i in {4..1}; do
     echo "Checking started in $i seconds..."
     sleep 1
   done
@@ -116,8 +79,6 @@ clear
 
 # Main loop
 while true; do
-  check_dns
   dns_hunter
-  ((count++))  # Increment the counter
   sleep $LOOP_DELAY
 done
