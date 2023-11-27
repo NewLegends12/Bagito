@@ -14,7 +14,7 @@ declare -a HOSTS=('124.6.181.12' '124.6.181.36')
 # Select value: "CUSTOM|C" or "DEFAULT|D"
 DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
-CUSTOM_DIG="/data/data/com.termux/files/usr/bin/dig"
+CUSTOM_DIG="/usr/bin/dig"
 
 # Log file path
 LOG_FILE="dns_hunter_log.txt"
@@ -37,18 +37,18 @@ dns_hunter() {
   
   # Iterate through each DNS and IP combination
   for ((i=0; i<"${#HOSTS[*]}"; i++)); do
-    for R in "${NS}" "${A}" "${NS1}" "${A1}" "${NS2}" "${A2}" "${NS3}" "${A3}" "${NS4}" "${A4}" "${NS5}" "${A5}" "${NS6}" "${A6}"; do
+    for R in "${NS[@]}" "${A[@]}"; do
       T="${HOSTS[$i]}"
       
       # Run a command to check if the DNS resolution matches an expected result
       result=$(${_DIG} "@${T}" "${R}" +short 2>/dev/null)
       
       # Define your logic here to identify potential issues
-      if [ "${result}" == "Unexpected IP" ]; then
+      if [ "${result}" != "" ] && [ "${result}" != "EXPECTED_IP" ]; then
         echo "Potential issue detected: DNS ${T} resolved to unexpected IP ${result}, NameServer: ${R}"
         
         # Log the event with timestamp and details
-        log_result "${T}" "${R}" "Unexpected IP" "Potential issue detected"
+        log_result "${T}" "${R}" "${result}" "Potential issue detected"
         
         # Add further actions or logging as needed
         # For example, send an alert, block the IP, etc.
@@ -65,7 +65,7 @@ log_result() {
 }
 
 countdown() {
-  for i in {4..1}; do
+  for i in {3..1}; do
     echo "Checking started in $i seconds..."
     sleep 1
   done
