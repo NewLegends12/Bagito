@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Your DNSTT Nameserver & your Domain `A` Record
 DNSTT_SERVERS=(
   'sdns.myudp.elcavlaw.com:myudp.elcavlaw.com'
   'sdns.myudph.elcavlaw.com:myudph.elcavlaw.com'
@@ -8,13 +7,8 @@ DNSTT_SERVERS=(
   'ns-sgfree.elcavlaw.com:sgfree.elcavlaw.com'
 )
 
-# Repeat dig cmd loop time (seconds) (positive integer only)
-LOOP_DELAY=1
-
-# Add your DNS here
 TARGET_DNS=('124.6.181.12' '124.6.181.36')
 
-# Linux' dig command executable filepath
 _DIG="$(command -v dig)"
 
 if [ -z "${_DIG}" ]; then
@@ -23,7 +17,7 @@ if [ -z "${_DIG}" ]; then
 fi
 
 endscript() {
-  unset DNSTT_SERVERS LOOP_DELAY TARGET_DNS _DIG
+  unset DNSTT_SERVERS TARGET_DNS _DIG
   exit 1
 }
 
@@ -50,15 +44,13 @@ echo "DNSTT Keep-Alive script <Lantin Nohanih>"
 echo "DNS List: [${TARGET_DNS[*]}]"
 echo "CTRL + C to close script"
 
-[[ "${LOOP_DELAY}" -eq 1 ]] && let "LOOP_DELAY++";
-
 case "${1:-}" in
   loop|l)
-    echo "Script loop: ${LOOP_DELAY} seconds"
+    echo "Script loop: 1 second interval"
     while true; do
       check
       echo '.--. .-.. . .- ... .     .-- .- .. -'
-      sleep "${LOOP_DELAY}"
+      sleep 1
     done
     ;;
   *)
