@@ -17,24 +17,14 @@ declare -a HOSTS=('124.6.181.12' '124.6.181.36')
 # Select value: "CUSTOM|C" or "DEFAULT|D"
 DIG_EXEC="DEFAULT"
 # If set to CUSTOM, enter your custom dig executable path here
-CUSTOM_DIG="/data/data/com.termux/files/home/go/bin/fastdig"
+CUSTOM_DIG="/data/data/com.termux/files/usr/bin/dig"
 
-# Function to simulate dig command
-simulate_dig() {
-  local result
-  case "$1" in
-    "sdns.myudp.elcavlaw.com") result="192.168.1.1";;
-    "sdns.myudp1.elcavlaw.com") result="192.168.1.2";;
-    "sdns.myudph.elcavlaw.com") result="192.168.1.3";;
-    "ns-sgfree.elcavlaw.com") result="192.168.1.4";;
-    *) result="";;  # Default case for unknown domains
-  esac
-  echo "$result"
-}
+# Log file path
+LOG_FILE="dns_checker_log.txt"
 
 # Verify dig command availability
 if [ "$DIG_EXEC" == "DEFAULT" ]; then
-  _DIG="simulate_dig"
+  _DIG="$(command -v dig)"
 else
   _DIG="$CUSTOM_DIG"
 fi
@@ -75,6 +65,8 @@ check() {
         result="Error"
       fi
 
+      log_result "${T}" "${R}" "${A_record}" "${STATUS}" "${result}"
+
       echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}A Record: ${A_record}${padding}${reset_color}"
@@ -90,6 +82,11 @@ check() {
 
   # Footer
   echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
+}
+
+log_result() {
+  local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  echo "${timestamp} - DNS IP: $1, NameServer: $2, A Record: $3, Status: $4, Result: $5" >> "$LOG_FILE"
 }
 
 countdown() {
