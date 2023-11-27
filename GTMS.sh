@@ -1,54 +1,25 @@
 #!/bin/bash
 
-clear
-
-function endscript() {
-  exit 1
-}
-
-trap endscript 2 15
-
-# DNS IPs and Name Servers
-DNS_IPS=('124.6.181.12' '124.6.181.36')
-NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudp.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
-
-LOOP_DELAY=1
-
-echo -e "\e[1;37mCurrent loop delay is \e[1;33m${LOOP_DELAY}\e[1;37m seconds.\e[0m"
-echo -e "\e[1;37mWould you like to change the loop delay? \e[1;36m[y/n]:\e[0m "
-read -r change_delay
-
-if [[ "$change_delay" == "y" ]]; then
-  echo -e "\e[1;37mEnter custom loop delay in seconds \e[1;33m(5-15):\e[0m "
-  read -r custom_delay
-  if [[ "$custom_delay" =~ ^[5-9]$|^1[0-5]$ ]]; then
-    LOOP_DELAY=$custom_delay
-  else
-    echo -e "\e[1;31mInvalid input. Using default loop delay of ${LOOP_DELAY} seconds.\e[0m"
-  fi
-fi
-
-DIG_EXEC="DEFAULT"
-CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
-VER=0.3
-
-case "${DIG_EXEC}" in
-  DEFAULT|D)
-    _DIG="$(command -v dig)"
-    ;;
-  CUSTOM|C)
-    _DIG="${CUSTOM_DIG}"
-    ;;
-esac
-
-if [ ! $(command -v ${_DIG}) ]; then
-  printf "%b" "Dig command failed to run, please install dig(dnsutils) or check the DIG_EXEC & CUSTOM_DIG variable.\n" && exit 1
-fi
-
 # Initialize the counter
 count=1
 
-check(){
+# Your DNSTT Nameserver & your Domain `A` Record
+declare -a NS=('sdns.myudp.elcavlaw.com' 'ns-artph.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudph.elcavlaw.com' 'ns-artph1.elcavlaw.com' 'ns-artsg1.elcavlaw.com' 'ns-artsg2.elcavlaw.com')
+declare -a A=('myudp.elcavlaw.com' 'artph.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudp1.elcavlaw.com' 'artph1.elcavlaw.com' 'artsg1.elcavlaw.com' 'artsg2.elcavlaw.com')
+
+# Repeat dig cmd loop time (seconds) (positive integer only)
+LOOP_DELAY=0
+
+# Add your DNS IP addresses here
+declare -a HOSTS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
+
+# Linux' dig command executable filepath
+# Select value: "CUSTOM|C" or "DEFAULT|D"
+DIG_EXEC="DEFAULT"
+# If set to CUSTOM, enter your custom dig executable path here
+CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
+
+check() {
   local border_color="\e[95m"  # Light magenta color
   local success_color="\e[92m"  # Light green color
   local fail_color="\e[91m"    # Light red color
@@ -57,21 +28,24 @@ check(){
   local padding="  "            # Padding for aesthetic
 
   # Header
-  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
+  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
   echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
   echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
   
   # Results
-  for T in "${DNS_IPS[@]}"; do
-    for R in "${NAME_SERVERS[@]}"; do
-      result=$(${_DIG} @${T} ${R} +short)
-      if [ -z "$result" ]; then
+  for T in "${HOSTS[@]}"; do
+    for ((i=0; i<"${#NS[@]}"; i++)); do
+      R="${NS[$i]}"
+      A_record="${A[$i]}"
+      result=$(${_DIG} "@${T}" "${R}" +short)
+      if [ -z "${result}" ]; then
         STATUS="${success_color}Success${reset_color}"
       else
         STATUS="${fail_color}Failed${reset_color}"
       fi
       echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
+      echo -e "${border_color}↕${padding}A Record: ${A_record}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"
     done
   done
@@ -82,20 +56,19 @@ check(){
   echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
  
   # Footer
-  echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
+  echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
 }
 
 countdown() {
-    for i in 5 4 3 2 1 0; do
-        echo "Checking started in $i seconds..."
-        sleep 1
-    done
+  for i in {5..1}; do
+    echo "Checking started in $i seconds..."
+    sleep 1
+  done
 }
-echo""
-echo""
+
+echo ""
 echo "Begin...."
-echo""
-echo""
+echo ""
 countdown
 clear
 
@@ -105,5 +78,3 @@ while true; do
   ((count++))  # Increment the counter
   sleep $LOOP_DELAY
 done
-
-exit 0
