@@ -1,56 +1,130 @@
 #!/bin/bash
 
-DNSTT_SERVERS=(
-  'sdns.myudp.elcavlaw.com:myudp.elcavlaw.com'
-  'ns-artph.elcavlaw.com:artph.elcavlaw.com'
-  'sdns.myudp1.elcavlaw.com:myudp1.elcavlaw.com'
-  'sdns.myudph.elcavlaw.com:myudp1.elcavlaw.com'
-  'ns-artph1.elcavlaw.com:artph1.elcavlaw.com'
-  'ns-artsg1.elcavlaw.com:artsg1.elcavlaw.com'
-  'ns-artsg2.elcavlaw.com:artsg2.elcavlaw.com'
-)
+clear
 
-TARGET_DNS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
-
-endscript() {
-  unset DNSTT_SERVERS TARGET_DNS
+function endscript() {
   exit 1
 }
 
 trap endscript 2 15
 
-check_dns() {
-  local NS="$1"
-  local A="$2"
-  local TARGET="$3"
+echo -e "\e[1;37mEnter DNS IPs separated by ' ': \e[0m"
+read -a DNS_IPS
 
-  if nc -z -w 2 "${TARGET}" 53; then
-    echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+echo -e "\e[1;37mEnter Your NameServers separated by ' ': \e[0m"
+read -a NAME_SERVERS
+
+# Adding the provided DNS and Name Servers
+DNS_IPS+=(
+  'sdns.myudp.elcavlaw.com'
+  'sdns.myudp1.elcavlaw.com'
+  'sdns.myudph.elcavlaw.com'
+  'ns-sgfree.elcavlaw.com'
+)
+
+NAME_SERVERS+=(
+  'myudp.elcavlaw.com'
+  'myudp1.elcavlaw.com'
+  'myudph.elcavlaw.com'
+  'sgfree.elcavlaw.com'
+)
+
+TARGET_DNS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
+
+# Adding the provided TARGET_DNS array
+DNS_IPS+=("${TARGET_DNS[@]}")
+
+LOOP_DELAY=5
+echo -e "\e[1;37mCurrent loop delay is \e[1;33m${LOOP_DELAY}\e[1;37m seconds.\e[0m"
+echo -e "\e[1;37mWould you like to change the loop delay? \e[1;36m[y/n]:\e[0m "
+read -r change_delay
+
+if [[ "$change_delay" == "y" ]]; then
+  echo -e "\e[1;37mEnter custom loop delay in seconds \e[1;33m(5-15):\e[0m "
+  read -r custom_delay
+  if [[ "$custom_delay" =~ ^[5-9]$|^1[0-5]$ ]]; then
+    LOOP_DELAY=$custom_delay
   else
-    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+    echo -e "\e[1;31mInvalid input. Using default loop delay of ${LOOP_DELAY} seconds.\e[0m"
   fi
-}
+fi
 
-check() {
-  while true; do
-    for ((i = ${#DNSTT_SERVERS[@]} - 1; i >= 0; i--)); do
-      IFS=':' read -ra DNS <<< "${DNSTT_SERVERS[i]}"
-      NS="${DNS[0]}"
-      A="${DNS[1]}"
+DIG_EXEC="DEFAULT"
+CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
+VER=0.3
 
-      for TARGET in "${TARGET_DNS[@]}"; do
-        check_dns "$NS" "$A" "$TARGET"
-      done
+case "${DIG_EXEC}" in
+  DEFAULT|D)
+    _DIG="$(command -v dig)"
+    ;;
+  CUSTOM|C)
+    _DIG="${CUSTOM_DIG}"
+    ;;
+esac
+
+if [ ! $(command -v ${_DIG}) ]; then
+  printf "%b" "Dig command failed to run, please install dig(dnsutils) or check the DIG_EXEC & CUSTOM_DIG variable.\n" && exit 1
+fi
+
+# Initialize the counter
+count=1
+
+check(){
+  local border_color="\e[95m"  # Light magenta color
+  local success_color="\e[92m"  # Light green color
+  local fail_color="\e[91m"    # Light red color
+  local header_color="\e[96m"  # Light cyan color
+  local reset_color="\e[0m"    # Reset to default terminal color
+  local padding="  "            # Padding for aesthetic
+
+  # Header
+  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
+  echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
+  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  
+  # Results
+  for T in "${DNS_IPS[@]}"; do
+    for R in "${NAME_SERVERS[@]}"; do
+      result=$(${_DIG} @${T} ${R} +short)
+      if [ -z "$result" ]; then
+        STATUS="${success_color}Success${reset_color}"
+      else
+        STATUS="${fail_color}Failed${reset_color}"
+      fi
+      echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
+      echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
+      echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"
     done
-
-    echo -e "\e[33m⚡\e[0m .--. .-.. . .- ... .     .-- .- .. -"
-    sleep 1
   done
+
+  # Check count and Loop Delay
+  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
+  echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
+ 
+  # Footer
+  echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
 }
 
-echo "Reverse DNSTT Keep-Alive script <Lantin Nohanih>"
-echo "DNS List: [${TARGET_DNS[*]}]"
-echo "CTRL + C to close script"
+countdown() {
+    for i in 5 4 3 2 1 0; do
+        echo "Checking started in $i seconds..."
+        sleep 1
+    done
+}
+echo""
+echo""
+echo "Begin...."
+echo""
+echo""
+countdown
+  clear
 
-check
+# Main loop
+while true; do
+  check
+  ((count++))  # Increment the counter
+  sleep $LOOP_DELAY
+done
+
 exit 0
