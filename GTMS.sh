@@ -7,7 +7,7 @@ DNSTT_SERVERS=(
   'ns-sgfree.elcavlaw.com:sgfree.elcavlaw.com'
 )
 
-TARGET_DNS=('124.6.181.12' '124.6.181.25' '124.6.181.36')
+TARGET_DNS=('124.6.181.12' '124.6.181.36')
 
 endscript() {
   unset DNSTT_SERVERS TARGET_DNS
@@ -15,6 +15,36 @@ endscript() {
 }
 
 trap endscript 2 15
+
+heartbeat_animation() {
+  while true; do
+    echo -ne "\e[1m❤ \e[0m"
+    sleep 0.5
+  done
+}
+
+check_dns() {
+  local NS="$1"
+  local A="$2"
+  local TARGET="$3"
+
+  if nc -z -w 1 "${TARGET}" 53 >/dev/null 2>&1; then
+    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+    heartbeat_animation &  # Start heartbeat animation in the background
+    local HEARTBEAT_PID=$!
+
+    # Actual work when connection is successful
+    # You can add more tasks here if needed
+    sleep 5  # Simulating some work, you can replace this with actual tasks
+
+    # Stop heartbeat animation
+    kill -9 "${HEARTBEAT_PID}" >/dev/null 2>&1
+    wait "${HEARTBEAT_PID}" 2>/dev/null
+    echo -e "\nConnection tasks completed for DNS Server ${NS}"
+  else
+    echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+  fi
+}
 
 check() {
   while true; do
@@ -24,14 +54,11 @@ check() {
       A="${DNS[1]}"
 
       for TARGET in "${TARGET_DNS[@]}"; do
-        if nc -z -w 1 "${TARGET}" 53 >/dev/null 2>&1; then
-          echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-        else
-          echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
-        fi
+        check_dns "$NS" "$A" "$TARGET" &
       done
     done
 
+    wait  # Wait for background processes to finish
     echo '.--. .-.. . .- ... .     .-- .- .. -'
     sleep 1
   done
