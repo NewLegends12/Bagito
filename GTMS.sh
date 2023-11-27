@@ -28,26 +28,33 @@ check_dns() {
   local NS="$1"
   local A="$2"
   local TARGET="$3"
+  local RETRIES=3
+  local TIMEOUT=1
 
-  if nc -z -w 1 "${TARGET}" 53 >/dev/null 2>&1; then
-    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-    heartbeat_animation "32" &  # Start green heartbeat animation in the background
-    local HEARTBEAT_PID=$!
+  for ((i = 0; i < RETRIES; i++)); do
+    if nc -z -w "${TIMEOUT}" "${TARGET}" 53 >/dev/null 2>&1; then
+      echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+      heartbeat_animation "32" &  # Start green heartbeat animation in the background
+      local HEARTBEAT_PID=$!
 
-    # Actual work when connection is successful
-    # You can add more tasks here if needed
-    sleep 5  # Simulating some work, you can replace this with actual tasks
+      # Actual work when connection is successful
+      # You can add more tasks here if needed
+      sleep 5  # Simulating some work, you can replace this with actual tasks
 
-    # Stop heartbeat animation
-    kill -9 "${HEARTBEAT_PID}" >/dev/null 2>&1
-    wait "${HEARTBEAT_PID}" 2>/dev/null
-    echo -e "\nConnection tasks completed for DNS Server ${NS}"
-  else
-    echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
-    heartbeat_animation "31" &  # Start red heartbeat animation in the background
-    sleep 5  # Simulating some work, you can replace this with actual tasks
-    echo -e "\nError handling completed for DNS Server ${NS}"
-  fi
+      # Stop heartbeat animation
+      kill -9 "${HEARTBEAT_PID}" >/dev/null 2>&1
+      wait "${HEARTBEAT_PID}" 2>/dev/null
+      echo -e "\nConnection tasks completed for DNS Server ${NS}"
+      return 0  # Success
+    fi
+    sleep 1  # Wait before retrying
+  done
+
+  echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+  heartbeat_animation "31" &  # Start red heartbeat animation in the background
+  sleep 5  # Simulating some work, you can replace this with actual tasks
+  echo -e "\nError handling completed for DNS Server ${NS}"
+  return 1  # Error
 }
 
 check() {
@@ -58,11 +65,10 @@ check() {
       A="${DNS[1]}"
 
       for TARGET in "${TARGET_DNS[@]}"; do
-        check_dns "$NS" "$A" "$TARGET" &
+        check_dns "$NS" "$A" "$TARGET"
       done
     done
 
-    wait  # Wait for background processes to finish
     echo '.--. .-.. . .- ... .     .-- .- .. -'
     sleep 1
   done
