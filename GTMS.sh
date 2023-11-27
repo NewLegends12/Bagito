@@ -9,15 +9,8 @@ DNSTT_SERVERS=(
 
 TARGET_DNS=('124.6.181.12' '124.6.181.36')
 
-_DIG="$(command -v dig)"
-
-if [ -z "${_DIG}" ]; then
-  echo "Error: Dig command not found. Please install dnsutils."
-  exit 1
-fi
-
 endscript() {
-  unset DNSTT_SERVERS TARGET_DNS _DIG
+  unset DNSTT_SERVERS TARGET_DNS
   exit 1
 }
 
@@ -30,11 +23,10 @@ check() {
     A="${DNS[1]}"
 
     for TARGET in "${TARGET_DNS[@]}"; do
-      IP="$(${_DIG} +short "@${TARGET}" "${A}" | tail -n 1)"
-      if [ -n "${IP}" ]; then
-        echo "Success: NS:${NS} A:${A} TARGET:${TARGET} IP:${IP}"
+      if nc -z -w 3 "${TARGET}" 53; then
+        echo "Success: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
       else
-        echo "Error: Failed to get IP for NS:${NS} A:${A} TARGET:${TARGET}"
+        echo "Error: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
       fi
     done
   done
