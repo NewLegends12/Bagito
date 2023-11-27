@@ -4,14 +4,14 @@
 count=1
 
 # Your DNSTT Nameserver & your Domain `A` Record
-declare -a NS=('sdns.myudp.elcavlaw.com' 'ns-artph.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudph.elcavlaw.com' 'ns-artph1.elcavlaw.com' 'ns-artsg1.elcavlaw.com' 'ns-artsg2.elcavlaw.com')
-declare -a A=('myudp.elcavlaw.com' 'artph.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudp1.elcavlaw.com' 'artph1.elcavlaw.com' 'artsg1.elcavlaw.com' 'artsg2.elcavlaw.com')
+declare -a NS=('sdns.myudp.elcavlaw.com' 'sdns.myudp1.elcavlaw.com' 'sdns.myudph.elcavlaw.com' 'ns-sgfree.elcavlaw.com')
+declare -a A=('myudp.elcavlaw.com' 'myudp1.elcavlaw.com' 'myudph.elcavlaw.com' 'sgfree.elcavlaw.com')
 
 # Repeat dig cmd loop time (seconds) (positive integer only)
 LOOP_DELAY=5
 
 # Add your DNS IP addresses here
-declare -a HOSTS=('124.6.181.20' '124.6.181.25' '112.198.115.44' '112.198.115.36' '124.6.181.12' '124.6.181.36')
+declare -a HOSTS=('124.6.181.12' '124.6.181.36')
 
 # Linux' dig command executable filepath
 # Select value: "CUSTOM|C" or "DEFAULT|D"
