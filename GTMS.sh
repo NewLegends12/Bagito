@@ -16,45 +16,16 @@ endscript() {
 
 trap endscript 2 15
 
-heartbeat_animation() {
-  local color="$1"
-  while true; do
-    echo -ne "\e[${color}m❤ \e[0m"
-    sleep 0.5
-  done
-}
-
 check_dns() {
   local NS="$1"
   local A="$2"
   local TARGET="$3"
-  local RETRIES=3
-  local TIMEOUT=1
 
-  for ((i = 0; i < RETRIES; i++)); do
-    if nc -z -w "${TIMEOUT}" "${TARGET}" 53 >/dev/null 2>&1; then
-      echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
-      heartbeat_animation "32" &  # Start green heartbeat animation in the background
-      local HEARTBEAT_PID=$!
-
-      # Actual work when connection is successful
-      # You can add more tasks here if needed
-      sleep 5  # Simulating some work, you can replace this with actual tasks
-
-      # Stop heartbeat animation
-      kill -9 "${HEARTBEAT_PID}" >/dev/null 2>&1
-      wait "${HEARTBEAT_PID}" 2>/dev/null
-      echo -e "\nConnection tasks completed for DNS Server ${NS}"
-      return 0  # Success
-    fi
-    sleep 1  # Wait before retrying
-  done
-
-  echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
-  heartbeat_animation "31" &  # Start red heartbeat animation in the background
-  sleep 5  # Simulating some work, you can replace this with actual tasks
-  echo -e "\nError handling completed for DNS Server ${NS}"
-  return 1  # Error
+  if nc -z -w 2 "${TARGET}" 53; then
+    echo -e "\e[32mSuccess\e[0m: DNS Server ${NS} is reachable from ${TARGET} for domain ${A}"
+  else
+    echo -e "\e[31mError\e[0m: DNS Server ${NS} is not reachable from ${TARGET} for domain ${A}"
+  fi
 }
 
 check() {
