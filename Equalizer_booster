@@ -8,8 +8,8 @@ function endscript() {
 
 trap endscript 2 15
 
-declare -a DNS_IPS=('gtm.palaboy.tech')
-declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
+declare -a DNS_IPS=('124.6.181.12' '124.6.181.36' '121.54.70.131')
+declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
 
 LOOP_DELAY=1
 
