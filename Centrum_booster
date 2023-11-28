@@ -8,10 +8,10 @@ function endscript() {
 
 trap endscript 2 15
 
-declare -a DNS_IPS=('124.6.181.12' '124.6.181.66' '124.6.181.67' '124.6.181.36' '112.198.126.124' '112.198.126.116' '112.198.115.44 112.198.115.36' '112.198.126.44')
-declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
+declare -a DNS_IPS=('124.6.181.12' '124.6.181.66' '124.6.181.67' '124.6.181.36' '112.198.126.124' '112.198.126.116' '112.198.115.44' '112.198.115.36' '112.198.126.44')
+declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
 
-LOOP_DELAY=4
+LOOP_DELAY=1
 
 DIG_EXEC="DEFAULT"
 CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
@@ -71,7 +71,7 @@ check(){
 }
 
 countdown() {
-    for i in 2 1 0; do
+    for i in 3 2 1 0; do
         echo "Checking started in $i seconds..."
         sleep 1
     done
