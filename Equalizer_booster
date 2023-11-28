@@ -11,7 +11,7 @@ trap endscript 2 15
 declare -a DNS_IPS=('124.6.181.12' '124.6.181.36')
 declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
 
-LOOP_DELAY=10
+LOOP_DELAY=5
 
 DIG_EXEC="DEFAULT"
 CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
@@ -79,7 +79,7 @@ check(){
 }
 
 countdown() {
-    for i in 2 1 0; do
+    for i in 1 0; do
         echo "Checking started in $i seconds..."
         sleep 1
     done
