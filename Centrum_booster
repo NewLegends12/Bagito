@@ -42,9 +42,9 @@ check(){
   local padding="  "            # Padding for aesthetic
 
   # Header
-  echo -e "${border_color}↓✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↓${reset_color}"
+  echo -e "${border_color}↓========================================↓${reset_color}"
   echo -e "${border_color}│${header_color}${padding}DNS Status Check Results${padding}${reset_color}"
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  echo -e "${border_color}↕========================================↕${reset_color}"
   
   # Results
   for T in "${DNS_IPS[@]}"; do
@@ -62,12 +62,12 @@ check(){
   done
 
   # Check count and Loop Delay
-  echo -e "${border_color}↕✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰↕${reset_color}"
+  echo -e "${border_color}↕========================================↕${reset_color}"
   echo -e "${border_color}↕${padding}${header_color}Check count: ${count}${padding}${reset_color}"
   echo -e "${border_color}↕${padding}Loop Delay: ${LOOP_DELAY} seconds${padding}${reset_color}"
  
   # Footer
-  echo -e "${border_color}↑✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴✴↑${reset_color}"
+  echo -e "${border_color}↑========================================↑${reset_color}"
 }
 
 countdown() {
