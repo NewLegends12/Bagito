@@ -33,7 +33,7 @@ fi
 # Initialize the counter
 count=1
 
-new_ascii_art() {
+lantin_ascii_art() {
   echo -e "______               __________        "
   echo -e "___  / ______ _________  /___(_)______ "
   echo -e "__  /  _  __ \`/_  __ \\  __/_  /__  __ \\"
