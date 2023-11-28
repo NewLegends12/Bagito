@@ -33,6 +33,12 @@ fi
 # Initialize the counter
 count=1
 
+cat_ascii_art() {
+  echo -e "   /\\_/\\"
+  echo -e "  ( o.o )"
+  echo -e "   > ^ <"
+}
+
 check(){
   local border_color="\e[34m"  # Light magenta color
   local success_color="\e[92m"  # Light green color
@@ -48,14 +54,7 @@ check(){
 
   for T in "${DNS_IPS[@]}"; do
     for R in "${NAME_SERVERS[@]}"; do
-      echo -e "${border_color}↕${padding}${reset_color}  _______ _           _     _ _   "
-      echo -e "${border_color}↕${padding}${reset_color} |__   __| |         | |   | (_)  "
-      echo -e "${border_color}↕${padding}${reset_color}    | |  | |__   __ _| |__ | |_ _ __ ___   __ _ "
-      echo -e "${border_color}↕${padding}${reset_color}    | |  | '_ \\ / _\` | '_ \\| | | '_ \` _ \\ / _\` |"
-      echo -e "${border_color}↕${padding}${reset_color}    | |  | | | | (_| | | | | | | | | | | | (_| |"
-      echo -e "${border_color}↕${padding}${reset_color}    |_|  |_| |_|\\__, |_| |_|_|_|_| |_| |_|\\__, |"
-      echo -e "${border_color}↕${padding}${reset_color}                 __/ |                       __/ |"
-      echo -e "${border_color}↕${padding}${reset_color}                |___/                       |___/ "
+      cat_ascii_art
       result=$(${_DIG} @${T} ${R} +short)
       if [ -z "$result" ]; then
         STATUS="${success_color}Success${reset_color}"
