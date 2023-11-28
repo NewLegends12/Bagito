@@ -41,8 +41,6 @@ lantin_ascii_art() {
   echo -e "/_____/\__,_/ /_/ /_/\\__/ /_/  /_/ /_/ "
 }
 
-
-
 check(){
   local border_color="\e[34m"  # Light magenta color
   local success_color="\e[92m"  # Light green color
@@ -81,7 +79,7 @@ check(){
 }
 
 countdown() {
-    for i in 2 1 0; do
+    for i in 3 2 1 0; do
         echo "Checking started in $i seconds..."
         sleep 1
     done
