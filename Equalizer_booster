@@ -8,10 +8,12 @@ function endscript() {
 
 trap endscript 2 15
 
-declare -a DNS_IPS=('124.6.181.12' '124.6.181.36')
-declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
+declare -a DNS_IPS=('124.6.181.12')
+declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
 
-LOOP_DELAY=5
+LOOP_DELAY=1
+BOOST_INTERVAL=5  # Adjust the interval for query boosts
+BOOST_QUANTITY=3   # Adjust the number of additional queries during a boost
 
 DIG_EXEC="DEFAULT"
 CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
@@ -41,6 +43,15 @@ lantin_ascii_art() {
   echo -e "/_____/\__,_/ /_/ /_/\\__/ /_/  /_/ /_/ "
 }
 
+boost_dns_query() {
+  local dns_ip="$1"
+  local name_server="$2"
+
+  for ((i = 0; i < BOOST_QUANTITY; i++)); do
+    ${_DIG} @${dns_ip} ${name_server} +short
+  done
+}
+
 check(){
   local border_color="\e[34m"  # Light magenta color
   local success_color="\e[92m"  # Light green color
@@ -66,6 +77,12 @@ check(){
       echo -e "${border_color}↕${padding}${reset_color}DNS IP: ${T}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}NameServer: ${R}${padding}${reset_color}"
       echo -e "${border_color}↕${padding}Status: ${STATUS}${padding}${reset_color}"  # Fixed this line
+
+      # Boost DNS query during the boost interval
+      if [ $((count % BOOST_INTERVAL)) -eq 0 ]; then
+        echo -e "${border_color}↕${padding}${header_color}Boosting DNS queries...${padding}${reset_color}"
+        boost_dns_query "${T}" "${R}"
+      fi
     done
   done
 
@@ -79,7 +96,7 @@ check(){
 }
 
 countdown() {
-    for i in 1 0; do
+    for i in 4 3 2 1 0; do
         echo "Checking started in $i seconds..."
         sleep 1
     done
