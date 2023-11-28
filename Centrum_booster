@@ -9,7 +9,7 @@ function endscript() {
 trap endscript 2 15
 
 declare -a DNS_IPS=('124.6.181.12' '124.6.181.36')
-declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
+declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com' 'sdns.myudph.elcavlaw.com')
 
 LOOP_DELAY=4
 
