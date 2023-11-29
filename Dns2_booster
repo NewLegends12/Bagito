@@ -2,7 +2,7 @@
 ## Copyright ©UDPTeam
 ## Script to keep-alive your DNSTT server domain record query from target resolver/local dns server
 ## Run this script excluded to your VPN tunnel (split vpn tunneling mode)
-## run command: ./globe-civ3.sh l
+## run command: ./globe-civ3.sh k
 
 ## Your DNSTT Nameserver & your Domain `A` Record
 NS='ns-sgfree.elcavlaw.com'
@@ -31,7 +31,7 @@ INITIAL_TTL=30
 ######################################
 ######################################
 ######################################
-VER=0.5
+VER=0.6
 case "${DIG_EXEC}" in
  DEFAULT|D)
  _DIG="$(command -v dig)"
@@ -88,8 +88,20 @@ echo -e "DNS List: [\e[1;34m${HOSTS[*]}\e[0m]"
 echo "CTRL + C to close script"
 [[ "${LOOP_DELAY}" -eq 1 ]] && let "LOOP_DELAY++";
 case "${@}" in
- loop|l)
- echo "Script loop: ${LOOP_DELAY} seconds"
+ k)
+ echo "Performing Keep-Alive only..."
+ while true; do
+  check
+  echo '.--. .-.. . .- ... .     .-- .- .. -'
+  sleep ${LOOP_DELAY}
+ done
+ ;;
+ b)
+ echo "Performing DNS query boosting only..."
+ boost_dns  # Call the boost_dns function
+ ;;
+ kb)
+ echo "Performing Keep-Alive and DNS query boosting simultaneously..."
  while true; do
   check
   boost_dns  # Call the boost_dns function
@@ -98,7 +110,7 @@ case "${@}" in
  done
  ;;
  *)
- check
+ echo "Invalid option. Use 'k' for Keep-Alive, 'b' for DNS query boosting, or 'kb' for both."
  ;;
 esac
 exit 0
