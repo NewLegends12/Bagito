@@ -31,7 +31,7 @@ INITIAL_TTL=30
 ######################################
 ######################################
 ######################################
-VER=0.9
+VER=1.0
 case "${DIG_EXEC}" in
  DEFAULT|D)
  _DIG="$(command -v dig)"
@@ -53,9 +53,10 @@ trap endscript 2 15
 check(){
  for T in "${HOSTS[@]}"; do
   for R in "${A}" "${NS}"; do
-   if [[ -z $(timeout -k 3 3 ${_DIG} @${T} ${R}) ]]; then
+   echo "Checking ${R} on ${T}..."
+   if [[ -z $(timeout -k 10 10 ${_DIG} @${T} ${R}) ]]; then
      M=31
-     echo -e "\e[1;${M}m\$ R:${R} D:${T}\e[0m"
+     echo -e "\e[1;${M}m\$ R:${R} D:${T} - Timed out!\e[0m"
      echo "---------------------------------------"
    else
      M=32
