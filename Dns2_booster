@@ -31,7 +31,7 @@ INITIAL_TTL=30
 ######################################
 ######################################
 ######################################
-VER=0.7
+VER=0.8
 case "${DIG_EXEC}" in
  DEFAULT|D)
  _DIG="$(command -v dig)"
@@ -100,17 +100,8 @@ case "${1}" in
     echo "Performing DNS query boosting only..."
     boost_dns  # Call the boost_dns function
     ;;
-  "kb")
-    echo "Performing Keep-Alive and DNS query boosting simultaneously..."
-    while true; do
-      check
-      boost_dns  # Call the boost_dns function
-      echo '.--. .-.. . .- ... .     .-- .- .. -'
-      sleep ${LOOP_DELAY}
-    done
-    ;;
   *)
-    echo "Invalid option. Use 'k' for Keep-Alive, 'b' for DNS query boosting, or 'kb' for both."
+    echo "Invalid option. Use 'k' for Keep-Alive or 'b' for DNS query boosting."
     exit 1
     ;;
 esac
