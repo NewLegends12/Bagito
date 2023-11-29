@@ -31,7 +31,7 @@ INITIAL_TTL=30
 ######################################
 ######################################
 ######################################
-VER=0.8
+VER=0.9
 case "${DIG_EXEC}" in
  DEFAULT|D)
  _DIG="$(command -v dig)"
@@ -87,22 +87,10 @@ echo "DNSTT Keep-Alive script <Lantin Nohanih>"
 echo -e "DNS List: [\e[1;34m${HOSTS[*]}\e[0m]"
 echo "CTRL + C to close script"
 [[ "${LOOP_DELAY}" -eq 1 ]] && let "LOOP_DELAY++";
-case "${1}" in
-  "k")
-    echo "Performing Keep-Alive only..."
-    while true; do
-      check
-      echo '.--. .-.. . .- ... .     .-- .- .. -'
-      sleep ${LOOP_DELAY}
-    done
-    ;;
-  "b")
-    echo "Performing DNS query boosting only..."
-    boost_dns  # Call the boost_dns function
-    ;;
-  *)
-    echo "Invalid option. Use 'k' for Keep-Alive or 'b' for DNS query boosting."
-    exit 1
-    ;;
-esac
-exit 0
+
+echo "Performing Keep-Alive..."
+while true; do
+  check
+  echo '.--. .-.. . .- ... .     .-- .- .. -'
+  sleep ${LOOP_DELAY}
+done
