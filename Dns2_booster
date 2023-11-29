@@ -23,12 +23,15 @@ CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
 ## Number of additional queries to boost DNS
 BOOST_QUERIES=3
 
+## Initial TTL value
+INITIAL_TTL=30
+
 ######################################
 ######################################
 ######################################
 ######################################
 ######################################
-VER=0.4
+VER=0.5
 case "${DIG_EXEC}" in
  DEFAULT|D)
  _DIG="$(command -v dig)"
@@ -43,7 +46,7 @@ if [ ! $(command -v ${_DIG}) ]; then
  "\$DIG_EXEC & \$CUSTOM_DIG variable inside $( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/$(basename "$0") file.\n" && exit 1
 fi
 endscript() {
- unset NS A LOOP_DELAY HOSTS _DIG DIG_EXEC CUSTOM_DIG T R M
+ unset NS A LOOP_DELAY HOSTS _DIG DIG_EXEC CUSTOM_DIG T R M TTL
  exit 1
 }
 trap endscript 2 15
@@ -68,10 +71,11 @@ check(){
 boost_dns() {
   for ((i=0; i<"${#HOSTS[@]}"; i++)); do
     for ((j=0; j<${BOOST_QUERIES}; j++)); do
-      if ${_DIG} @${HOSTS[$i]} ${A} &>/dev/null; then
-        echo "Boosted DNS query for ${HOSTS[$i]} - Connected!"
+      TTL=$((INITIAL_TTL + j))
+      if ${_DIG} +short +ttl=${TTL} @${HOSTS[$i]} ${A} &>/dev/null; then
+        echo "Boosted DNS query for ${HOSTS[$i]} - TTL: ${TTL} - Connected!"
       else
-        echo "Boosted DNS query for ${HOSTS[$i]}"
+        echo "Boosted DNS query for ${HOSTS[$i]} - TTL: ${TTL}"
       fi
     done
     echo "---------------------------------------"
