@@ -12,8 +12,10 @@ declare -a DNS_IPS=('124.6.181.12')
 declare -a NAME_SERVERS=('ns-sgfree.elcavlaw.com')
 
 LOOP_DELAY=1
-BOOST_INTERVAL=5  # Adjust the interval for query boosts
-BOOST_QUANTITY=3   # Adjust the number of additional queries during a boost
+BOOST_INTERVAL=5         # Adjust the interval for query boosts
+BOOST_QUANTITY=3          # Adjust the number of additional queries during a boost
+DELAY_BETWEEN_QUERIES=0.5 # Adjust as needed
+DELAY_DURING_BOOST=1      # Adjust as needed
 
 DIG_EXEC="DEFAULT"
 CUSTOM_DIG=/data/data/com.termux/files/home/go/bin/fastdig
@@ -82,7 +84,9 @@ check(){
       if [ $((count % BOOST_INTERVAL)) -eq 0 ]; then
         echo -e "${border_color}↕${padding}${header_color}Boosting DNS queries...${padding}${reset_color}"
         boost_dns_query "${T}" "${R}"
+        sleep $DELAY_DURING_BOOST  # Introduce a delay during the boost interval
       fi
+      sleep $DELAY_BETWEEN_QUERIES  # Introduce a delay between individual queries
     done
   done
 
@@ -96,7 +100,7 @@ check(){
 }
 
 countdown() {
-    for i in 4 3 2 1 0; do
+    for i in 5 4 3 2 1 0; do
         echo "Checking started in $i seconds..."
         sleep 1
     done
